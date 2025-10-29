@@ -1,0 +1,4 @@
+gymnasium[mujoco]
+scipy
+matplotlib
+mediapy
