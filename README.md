@@ -1,0 +1,3 @@
+# Crazyflie Reinforcement Learning Environment for Backflips and Position Control
+
+This repository contains a reinforcement learning environment for training Crazyflie drones to perform backflips and position control tasks using the MuJoCo physics engine. The environment is built on top of Gymnasium and provides a realistic simulation of the Crazyflie drone as used in the Fall 2025 AE 483 course at UIUC.
