@@ -1,0 +1,5 @@
+gymnasium[mujoco]
+scipy
+matplotlib
+mediapy
+stable-baselines3

@@ -21,6 +21,7 @@ class FeedforwardPitchOscillation:
         n_oscillations: int = 2,
         tau_margin: float = 0.3,
         period_scale: float = 2.0,  # >1 slows oscillation down
+        # --- REMOVED torque_gain ---
     ):
         self.model = model
         self.data = data
@@ -50,10 +51,17 @@ class FeedforwardPitchOscillation:
         self.tau_max = float(model.actuator_ctrlrange[self.idx_my, 1])
 
         # Compute base omega and slow it down with period_scale
-        self.omega = math.sqrt(tau_margin * self.tau_max / (self.Iyy * self.A)) / period_scale
-
-        # Timing
-        self.T_single = 2 * math.pi / self.omega
+        # Check if Iyy or A are zero to avoid division error
+        if self.Iyy * self.A == 0:
+            self.omega = 0
+        else:
+            self.omega = math.sqrt(tau_margin * self.tau_max / (self.Iyy * self.A)) / period_scale
+            
+        if self.omega == 0:
+            self.T_single = 0
+        else:
+            self.T_single = 2 * math.pi / self.omega
+            
         self.T_total = n_oscillations * self.T_single
 
         # Hover thrust
@@ -77,8 +85,9 @@ class FeedforwardPitchOscillation:
         theta_des = self.theta_des(t)
         theta_ddot_des = self.theta_ddot_des(t)
 
-        # --- Feedforward torque ---
-        tau_y = self.torque_gain * self.Iyy * theta_ddot_des
+        # --- Feedforward torque (CORRECTED) ---
+        # The physically correct gain is 1.0
+        tau_y = self.Iyy * theta_ddot_des
         tau_y = float(np.clip(tau_y, -self.tau_max, self.tau_max))
 
         # --- Feedforward thrust correction ---
@@ -91,4 +100,3 @@ class FeedforwardPitchOscillation:
         u[self.idx_thrust] = f_z
         u[self.idx_my] = tau_y
         return u, tau_y, f_z
-
